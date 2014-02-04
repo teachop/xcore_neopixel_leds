@@ -5,7 +5,7 @@
 TARGET = STARTKIT
 
 # The APP_NAME variable determines the name of the final .xe file. It should
-# not includse the .xe postfix. If left blank the name will default to
+# not include the .xe postfix. If left blank the name will default to
 # the project name
 APP_NAME = app_neopixel_leds
 
@@ -17,21 +17,11 @@ USED_MODULES =
 # XCC_XC_FLAGS, XCC_C_FLAGS, XCC_ASM_FLAGS, XCC_CPP_FLAGS
 # If the variable XCC_MAP_FLAGS is set it overrides the flags passed to
 # xcc for the final link (mapping) stage.
-XCC_FLAGS = -g
+XCC_FLAGS_Debug   = -O0 -g
+XCC_FLAGS_Release = -O2 -g
 
 # The VERBOSE variable, if set to 1, enables verbose output from the make system.
 VERBOSE = 0
 
-#=============================================================================
-#=============================================================================
-# The following part of the Makefile includes the common build infrastructure
-# for compiling XMOS applications. You should not need to edit below here.
-
 XMOS_MAKE_PATH ?= ../..
-ifneq ($(wildcard $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common),)
-include $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common
-else
-include ../module_xcommon/build/Makefile.common
-endif
-
-
+-include $(XMOS_MAKE_PATH)/xcommon/module_xcommon/build/Makefile.common
