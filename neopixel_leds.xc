@@ -14,7 +14,7 @@
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
 //
-void neopixel_led_task(port neo, streaming chanend comm) {
+void neopixel_led_task(port neo, chanend comm) {
     const unsigned int delay_third = 42;
     const unsigned int delay_latch = 5000;
     unsigned int delay_count;
@@ -102,7 +102,7 @@ unsigned int wheel(unsigned char wheelPos) {
 // ---------------------------------------------------------------
 // blinky_task - rainbow cycle pattern from pjrc and / or adafruit
 //
-void blinky_task(unsigned int delay, streaming chanend comm) {
+void blinky_task(unsigned int delay, chanend comm) {
     timer tick;
     unsigned int next_pass;
     unsigned int grb[LEDS];
@@ -135,7 +135,7 @@ void blinky_task(unsigned int delay, streaming chanend comm) {
 //
 port out_pin = XS1_PORT_1H;
 int main() {
-    streaming chan comm_chan;
+    chan comm_chan;
 
     par {
         neopixel_led_task(out_pin, comm_chan);
