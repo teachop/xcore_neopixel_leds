@@ -7,7 +7,7 @@ This repo is a simple multi-core xCore test of a two-task approach to driving an
 The application is designed for and tested on the XMOS startKIT, but it should be possible to change the target in the makefile.
 
 ###xcore_neopixel_leds
-Two tasks make up the application, a pattern generator task and a driver task.  These are connected with a channel, which is a language and hardware communication feature.
+Two tasks make up the application, a pattern generator task and a driver task.  These are connected with a channel, which is a language and hardware communication feature.  These two tasks are started in main using par.  Main connects them together with a chan passed to the tasks.
 
 ####blinky_task
 
