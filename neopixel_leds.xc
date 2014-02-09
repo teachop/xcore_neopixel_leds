@@ -16,27 +16,23 @@
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
 //
-void neopixel_led_task(port neo, chanend comm) {
+void neopixel_led_task(port neo, streaming chanend comm) {
     const unsigned int delay_third = 42;
-    const unsigned int delay_latch = 5000;
     unsigned int delay_count;
     unsigned int bit_count = 0;
-    unsigned int led_count = 0;
-    unsigned int grb[LEDS];
-    unsigned int color_shift;
+    unsigned int color_shift = 0;
     unsigned int bit = 0;
-    int loop;
-
-    // first pass will output all zeros
-    for( loop=0; loop<LEDS; ++loop ) {
-        grb[loop] = 0;
-    }
-    color_shift = 0;
 
     // read the initial counter
     neo <: 0 @ delay_count;
 
     while (1) {
+        if ( !bit_count ) {
+            // end of LED shift, read from the channel new color data
+            comm :> color_shift;
+            // if channel underflows, data will latch into the strip
+        }
+
         // output low->high transition
         delay_count += delay_third;
         neo @ delay_count <: 1;
@@ -44,33 +40,20 @@ void neopixel_led_task(port neo, chanend comm) {
         // shift through bits in a grb color
         bit = color_shift & 0x800000;
         color_shift <<=1;
-        bit_count++;
 
         // output high->data transition
         delay_count += delay_third;
         neo @ delay_count <: bit? 1 : 0;
 
-        if ( 24 <= bit_count ) {
-            // complete, scan to next led
+        if ( 24 <= ++bit_count ) {
+            // complete led
             bit_count = 0;
-            if ( LEDS <= ++led_count ) {
-                led_count = 0;
-            }
-            color_shift = grb[led_count];
         }
 
         // output data->low transition
         delay_count += delay_third;
         neo @ delay_count <: 0;
 
-        if ( !bit_count && !led_count ) {
-            // end of strip, minimum latch delay requred
-            delay_count += delay_latch;
-            // read from the channel new color data
-            for ( loop=0; loop<LEDS; ++loop) {
-                comm :> grb[loop];
-            }
-        }
     }
 
 }
@@ -104,10 +87,9 @@ unsigned int wheel(unsigned char wheelPos) {
 // ---------------------------------------------------------------
 // blinky_task - rainbow cycle pattern from pjrc and / or adafruit
 //
-void blinky_task(unsigned int delay, chanend comm) {
+void blinky_task(unsigned int delay, streaming chanend comm) {
     timer tick;
     unsigned int next_pass;
-    unsigned int grb[LEDS];
     int loop, outer;
 
     tick :> next_pass;
@@ -116,15 +98,11 @@ void blinky_task(unsigned int delay, chanend comm) {
         for ( outer=0; outer<256; ++outer) {
             // cycle of all colors on wheel
             for ( loop=0; loop<LEDS; ++loop) {
-                grb[loop] = wheel(( (loop*256/LEDS) + outer) & 255);
+                // emit data to the driver
+                comm <: wheel(( (loop*256/LEDS) + outer) & 255);;
             }
 
-            // emit data to the driver
-            for( loop=0; loop<LEDS; ++loop ) {
-                comm <: grb[loop];
-            }
-
-            // wait a bit
+            // wait a bit, must allow strip to latch at least
             next_pass += delay;
             tick when timerafter(next_pass) :> void;
         }
@@ -137,7 +115,7 @@ void blinky_task(unsigned int delay, chanend comm) {
 //
 port out_pin = XS1_PORT_1H;
 int main() {
-    chan comm_chan;
+    streaming chan comm_chan;
 
     par {
         neopixel_led_task(out_pin, comm_chan);
