@@ -8,8 +8,10 @@
 
 
 // length of the strip
-#define LEDS 8
+#define LEDS 60
 
+// pattern rotation delay in microseconds
+#define SPEED 3000
 
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
@@ -139,7 +141,7 @@ int main() {
 
     par {
         neopixel_led_task(out_pin, comm_chan);
-        blinky_task(1500*100, comm_chan);
+        blinky_task(SPEED*100, comm_chan);
     }
 
     return 0;
