@@ -101,7 +101,7 @@
 					<folderInfo id="com.xmos.cdt.toolchain.2071082211.1219927796" name="/" resourcePath="">
 						<toolChain id="com.xmos.cdt.toolchain.1361559734" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
 							<targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id="com.xmos.cdt.core.platform.515394521" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform"/>
-							<builder arguments="CONFIG=Debug" id="com.xmos.cdt.builder.base.1391806310" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+							<builder appendEnvironment="true" arguments="CONFIG=Debug" environment="XTA_ENABLED=false|" id="com.xmos.cdt.builder.base.1391806310" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin/Debug"/>
 								</outputEntries>
@@ -517,7 +517,7 @@
 					<folderInfo id="com.xmos.cdt.toolchain.729051243.1150963439" name="/" resourcePath="">
 						<toolChain id="com.xmos.cdt.toolchain.309812928" name="com.xmos.cdt.toolchain" superClass="com.xmos.cdt.toolchain">
 							<targetPlatform archList="all" binaryParser="com.xmos.cdt.core.XEBinaryParser" id="com.xmos.cdt.core.platform.987717828" isAbstract="false" osList="linux,win32,macosx" superClass="com.xmos.cdt.core.platform"/>
-							<builder arguments="CONFIG=Release" id="com.xmos.cdt.builder.base.1359399307" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
+							<builder appendEnvironment="true" arguments="CONFIG=Release" environment="XTA_ENABLED=false|" id="com.xmos.cdt.builder.base.1359399307" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.xmos.cdt.builder.base">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin/Release"/>
 								</outputEntries>

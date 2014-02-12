@@ -10,7 +10,7 @@
 // length of the strip
 #define LEDS 60
 
-// pattern rotation delay in microseconds
+// LED refresh rate must exceed ((30*LEDS) + (50)) microseconds
 #define SPEED 3000
 
 // ---------------------------------------------------------
@@ -21,7 +21,7 @@ void neopixel_led_task(port neo, streaming chanend comm) {
     unsigned int delay_count;
     unsigned int bit_count = 0;
     unsigned int color_shift = 0;
-    unsigned int bit = 0;
+    unsigned int bit;
 
     // read the initial counter
     neo <: 0 @ delay_count;
@@ -38,22 +38,21 @@ void neopixel_led_task(port neo, streaming chanend comm) {
         neo @ delay_count <: 1;
 
         // shift through bits in a grb color
-        bit = color_shift & 0x800000;
+        bit = (color_shift & 0x800000)? 1 : 0;
         color_shift <<=1;
 
         // output high->data transition
         delay_count += delay_third;
-        neo @ delay_count <: bit? 1 : 0;
+        neo @ delay_count <: bit;
 
         if ( 24 <= ++bit_count ) {
-            // complete led
+            // 24 bits per led
             bit_count = 0;
         }
 
         // output data->low transition
         delay_count += delay_third;
         neo @ delay_count <: 0;
-
     }
 
 }
@@ -99,7 +98,7 @@ void blinky_task(unsigned int delay, streaming chanend comm) {
             // cycle of all colors on wheel
             for ( loop=0; loop<LEDS; ++loop) {
                 // emit data to the driver
-                comm <: wheel(( (loop*256/LEDS) + outer) & 255);;
+                comm <: wheel(( (loop*256/LEDS) + outer) & 255);
             }
 
             // wait a bit, must allow strip to latch at least
