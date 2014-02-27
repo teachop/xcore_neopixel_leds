@@ -16,11 +16,3 @@ The pattern generator task presents a "wheel" rolling multi-color pattern on the
 ####neopixel_led_task
 
 The driver task uses the timed port output feature of the xCore processors.  This generates the serialized data pattern with the precise timing needed for the serial NeoPixel strip.
-
-######The NeoPixels are here:
-http://learn.adafruit.com/adafruit-neopixel-uberguide/overview
-
-######A really nice project on ARM for NeoPixel is here:
-https://www.pjrc.com/teensy/td_libs_OctoWS2811.html
-
-...This is my first XC and xCore project so any feedback is welcome!
