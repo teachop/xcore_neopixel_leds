@@ -8,12 +8,11 @@
 
 
 // length of the strip(s)
-#define LEDS_1 60
-#define LEDS_2 60
+#define LEDS 60
 
-// LED refresh rate must exceed ((30*LEDS) + (50)) microseconds
-#define SPEED_1 3000
-#define SPEED_2 6000
+// LED refresh SPEED must exceed ((30*LEDS) + (50)) microseconds
+#define SPEED     2000
+#define SPEED_INC 1000
 
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
@@ -114,16 +113,25 @@ void blinky_task(unsigned int delay, int length, streaming chanend comm) {
 // ---------------------------------------------------------
 // main - xCore startKIT NeoPixel blinky test
 //
-port out1_pin=XS1_PORT_1H, out2_pin=XS1_PORT_1G;
+port out_pin[4] = {
+    XS1_PORT_1F, XS1_PORT_1H, XS1_PORT_1G, XS1_PORT_1E
+};
 int main() {
-    streaming chan strip1_chan, strip2_chan;
+    streaming chan comm_chan[4];
 
     par {
-        // two led stips - can have differing speeds / lengths
-        neopixel_led_task(out1_pin, strip1_chan);
-        blinky_task(SPEED_1*100, LEDS_1, strip1_chan);
-        neopixel_led_task(out2_pin, strip2_chan);
-        blinky_task(SPEED_2*100, LEDS_2, strip2_chan);
+        // 4 led stips - possible to have differing speeds / lengths
+        neopixel_led_task(out_pin[0], comm_chan[0]);
+        blinky_task((SPEED+SPEED_INC*0)*100, LEDS, comm_chan[0]);
+
+        neopixel_led_task(out_pin[1], comm_chan[1]);
+        blinky_task((SPEED+SPEED_INC*1)*100, LEDS, comm_chan[1]);
+
+        neopixel_led_task(out_pin[2], comm_chan[2]);
+        blinky_task((SPEED+SPEED_INC*2)*100, LEDS, comm_chan[2]);
+
+        neopixel_led_task(out_pin[3], comm_chan[3]);
+        blinky_task((SPEED+SPEED_INC*3)*100, LEDS, comm_chan[3]);
     }
 
     return 0;
