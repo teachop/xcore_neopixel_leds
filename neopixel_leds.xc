@@ -7,11 +7,13 @@
 #include <timer.h>
 
 
-// length of the strip
-#define LEDS 60
+// length of the strip(s)
+#define LEDS_1 60
+#define LEDS_2 60
 
 // LED refresh rate must exceed ((30*LEDS) + (50)) microseconds
-#define SPEED 3000
+#define SPEED_1 3000
+#define SPEED_2 6000
 
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
@@ -86,7 +88,7 @@ unsigned int wheel(unsigned char wheelPos) {
 // ---------------------------------------------------------------
 // blinky_task - rainbow cycle pattern from pjrc and / or adafruit
 //
-void blinky_task(unsigned int delay, streaming chanend comm) {
+void blinky_task(unsigned int delay, int length, streaming chanend comm) {
     timer tick;
     unsigned int next_pass;
     int loop, outer;
@@ -96,9 +98,9 @@ void blinky_task(unsigned int delay, streaming chanend comm) {
     while (1) {
         for ( outer=0; outer<256; ++outer) {
             // cycle of all colors on wheel
-            for ( loop=0; loop<LEDS; ++loop) {
+            for ( loop=0; loop<length; ++loop) {
                 // emit data to the driver
-                comm <: wheel(( (loop*256/LEDS) + outer) & 255);
+                comm <: wheel(( (loop*256/length) + outer) & 255);
             }
 
             // wait a bit, must allow strip to latch at least
@@ -112,13 +114,16 @@ void blinky_task(unsigned int delay, streaming chanend comm) {
 // ---------------------------------------------------------
 // main - xCore startKIT NeoPixel blinky test
 //
-port out_pin = XS1_PORT_1H;
+port out1_pin=XS1_PORT_1H, out2_pin=XS1_PORT_1G;
 int main() {
-    streaming chan comm_chan;
+    streaming chan strip1_chan, strip2_chan;
 
     par {
-        neopixel_led_task(out_pin, comm_chan);
-        blinky_task(SPEED*100, comm_chan);
+        // two led stips - can have differing speeds / lengths
+        neopixel_led_task(out1_pin, strip1_chan);
+        blinky_task(SPEED_1*100, LEDS_1, strip1_chan);
+        neopixel_led_task(out2_pin, strip2_chan);
+        blinky_task(SPEED_2*100, LEDS_2, strip2_chan);
     }
 
     return 0;
