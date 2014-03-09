@@ -14,50 +14,43 @@
 #define SPEED     1900
 #define SPEED_INC 1000
 
-// interface for LED data
-interface led_comm {
-    void next(unsigned int color, int led_index);
-};
-
 
 // ---------------------------------------------------------
 // neopixel_led_task - output task for single neopixel strip
 //
-void neopixel_led_task(port neo, port tp, interface led_comm server comm) {
+void neopixel_led_task(port neo, port tp, streaming chanend comm) {
     const unsigned int delay_third = 42;
     unsigned int delay_count;
+    unsigned int color_shift;
     int bit_count = 24;
     unsigned int bit;
 
     while (1) {
-        select {
-        case comm.next(unsigned int color_shift, int led_index):
-            // have new color data
-            if ( !led_index ) {
-                // beginning of strip, resync counter
-                neo <: 0 @ delay_count;
-                delay_count += delay_third;
-            }
-            do {
-                // output low->high transition
-                delay_count += delay_third;
-                tp <: 1;
-                neo @ delay_count <: 1;
-
-                // output high->data transition
-                bit = (color_shift & 0x800000)? 1 : 0;
-                color_shift <<=1;
-                delay_count += delay_third;
-                neo @ delay_count <: bit;
-                tp <: 0;
-
-                // output data->low transition
-                delay_count += delay_third;
-                neo @ delay_count <: 0;
-            } while ( --bit_count );
-            bit_count = 24;
-            break;
+        comm :> color_shift;
+        // have new color data
+        if ( 0x80000000 & color_shift ) {
+            // beginning of strip, resync counter
+            neo <: 0 @ delay_count;
+            delay_count += delay_third;
         }
+        do {
+            // output low->high transition
+            delay_count += delay_third;
+            tp <: 1;
+            neo @ delay_count <: 1;
+
+            // output high->data transition
+            bit = (color_shift & 0x800000)? 1 : 0;
+            color_shift <<=1;
+            delay_count += delay_third;
+            neo @ delay_count <: bit;
+            tp <: 0;
+
+            // output data->low transition
+            delay_count += delay_third;
+            neo @ delay_count <: 0;
+        } while ( --bit_count );
+        bit_count = 24;
     }
 
 }
@@ -91,7 +84,7 @@ unsigned int wheel(unsigned char wheelPos) {
 // ---------------------------------------------------------------
 // blinky_task - rainbow cycle pattern from pjrc and / or adafruit
 //
-void blinky_task(unsigned int delay, int length, interface led_comm client comm) {
+void blinky_task(unsigned int delay, int length, streaming chanend comm) {
     timer tick;
     unsigned int next_pass;
     int loop, outer;
@@ -101,9 +94,10 @@ void blinky_task(unsigned int delay, int length, interface led_comm client comm)
     while (1) {
         for ( outer=0; outer<256; ++outer) {
             // cycle of all colors on wheel
-            for ( loop=0; loop<length; ++loop) {
+            comm <: (wheel(outer) | 0x80000000);
+            for ( loop=1; loop<length; ++loop) {
                 // emit data to the driver
-                comm.next( wheel(( (loop*256/length) + outer) & 255), loop );
+                comm <: wheel(( (loop*256/length) + outer) & 255);
             }
 
             // wait a bit, must allow strip to latch at least
@@ -124,7 +118,7 @@ port test_pin[4] = { // j7.23, j7.21, j7.20, j7.19
     XS1_PORT_1P, XS1_PORT_1O, XS1_PORT_1I, XS1_PORT_1L
 };
 int main() {
-    interface led_comm comm_chan[4];
+    streaming chan comm_chan[4];
 
     par {
         // 4 led stips - possible to have differing speeds / lengths

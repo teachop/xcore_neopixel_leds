@@ -2,8 +2,6 @@
 
 This repo is a simple multi-core xCore test of a two-task approach to driving an Adafruit NeoPixel LED Strip.  The source is in XC, an extension of C with concurrency and support for high speed timing synchronized I/O capability at the language level.
 
-The latest version uses interfaces instead of the channel syntax to link the tasks.
-
 For a view of how XCore I/O works compare the driver code in neopixel_led_task() to some other NeoPixel waveform generator code.  An example would be the Adafruit_NeoPixel::show() routine here:
 
 https://github.com/adafruit/Adafruit_NeoPixel/blob/master/Adafruit_NeoPixel.cpp
@@ -13,9 +11,13 @@ This particular code is able to do precise timing on AVR CPUs by employing cycle
 This application is designed for and tested on the XMOS startKIT, but it should be possible to change the XMOS target in the makefile (alter "TARGET = STARTKIT").
 
 ###xcore_neopixel_leds
-Two tasks make up the application, a pattern generator task and a driver task.  These are connected with an interface, which is a language and hardware communication feature.  These two tasks are started in main using par.  Main connects them together with an interface passed to the tasks.
+Two tasks make up the application, a pattern generator task and a driver task.  These are exchanging data through a channel, which is a language and hardware communication feature.  These two tasks are started in main using par.  Main connects them together with a channel passed to the tasks.
+
+The task communication uses "streaming channels" - their high performance is important in this application (see the wiki).
 
 In the example, 4 sets of paired tasks execute in parallel, each pair driving its own NeoPixel strip pattern.  While this is likely not the best approach (4 bit wide port?) it is easy and tests multi-tasking on the XCore chip.
+
+Note that the driver tasks use extra test output pins for timing measurements.  These were used to evaluate channels vs. streaming channels vs. interfaces for performance.  The test outputs can be eliminated if desired.
 
 ####blinky_task
 
