@@ -10,13 +10,13 @@
 // length of the strip(s)
 #define LEDS 60
 
-// LED refresh SPEED must exceed ((30*LEDS) + (656)) microseconds
-#define SPEED     2500
+// SPEED constant must be larger than ((30.25*LEDS) + 50) microseconds
+#define SPEED     1900
 #define SPEED_INC 1000
 
 // Interface for LED data
 interface led_comm {
-    void next(unsigned int color);
+    void next(unsigned int color, int led_index);
 };
 
 // ---------------------------------------------------------
@@ -25,15 +25,19 @@ interface led_comm {
 void neopixel_led_task(port neo, interface led_comm server comm) {
     const unsigned int delay_third = 42;
     unsigned int delay_count;
-    unsigned int bit_count;
+    int bit_count = 24;
     unsigned int bit;
 
     while (1) {
         select {
-        case comm.next(unsigned int color_shift):
-            // TODO: re-sync port counter at beginning of strip.
+        case comm.next(unsigned int color_shift, int led_index):
+            if ( !led_index ) {
+                neo <: 0 @ delay_count;
+                // resync counter
+                delay_count += delay_third;
+            }
             // have new color data
-            for ( bit_count=0; bit_count<24; ++bit_count ) {
+            do {
                 // output low->high transition
                 delay_count += delay_third;
                 neo @ delay_count <: 1;
@@ -49,7 +53,8 @@ void neopixel_led_task(port neo, interface led_comm server comm) {
                 // output data->low transition
                 delay_count += delay_third;
                 neo @ delay_count <: 0;
-            }
+            } while ( --bit_count );
+            bit_count = 24;
             break;
         }
     }
@@ -97,7 +102,7 @@ void blinky_task(unsigned int delay, int length, interface led_comm client comm)
             // cycle of all colors on wheel
             for ( loop=0; loop<length; ++loop) {
                 // emit data to the driver
-                comm.next( wheel(( (loop*256/length) + outer) & 255) );
+                comm.next( wheel(( (loop*256/length) + outer) & 255), loop );
             }
 
             // wait a bit, must allow strip to latch at least
