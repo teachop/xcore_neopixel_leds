@@ -2,9 +2,7 @@
 
 This repo is a simple multi-core xCore test of a two-task approach to driving an Adafruit NeoPixel LED Strip.  The source is in XC, an extension of C with concurrency and support for high speed timing synchronized I/O capability at the language level.
 
-For a view of how XCore I/O works compare the driver code in neopixel_led_task() to some other NeoPixel waveform generator code.  An example would be the Adafruit_NeoPixel::show() routine here:
-
-https://github.com/adafruit/Adafruit_NeoPixel/blob/master/Adafruit_NeoPixel.cpp
+For a view of how XCore I/O works compare the driver code in neopixel_led_task() to some other NeoPixel waveform generator code.  An example would be the [Adafruit_NeoPixel::show() routine](https://github.com/adafruit/Adafruit_NeoPixel/blob/master/Adafruit_NeoPixel.cpp#L60-793).
 
 This particular code is able to do precise timing on AVR CPUs by employing cycle-counted assembly language that requires full attention of the CPU.  In the XCore case outputs are handled by ports that precisely synchronize the outputs themselves.
 
