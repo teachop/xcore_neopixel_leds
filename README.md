@@ -8,6 +8,8 @@ This particular code is able to do precise timing on AVR CPUs by employing cycle
 
 This application is designed for and tested on the XMOS startKIT, but it should be possible to change the XMOS target in the makefile (alter "TARGET = STARTKIT").
 
+This project demonstrates that the xCore is capable of generating color data on the fly without any buffering due to the concurrency and speed features of the xCore.  Most actual applications, however, will want to generate color data into a compete frame/strip buffer ahead of the actual hardware output [like this program](https://github.com/teachop/xcore_neopixel_buffered) does.
+
 ###xcore_neopixel_leds
 Two tasks make up the application, a pattern generator task and a driver task.  These are exchanging data through a channel, which is a language and hardware communication feature.  These two tasks are started in main using par.  Main connects them together with a channel passed to the tasks.
 
