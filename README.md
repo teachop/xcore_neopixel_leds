@@ -1,6 +1,11 @@
 #Driving NeoPixel LEDs from XMOS
 
-This repo is a simple multi-core xCore test of a two-task approach to driving an Adafruit NeoPixel LED Strip.  The source is in XC, an extension of C with concurrency and support for high speed timing synchronized I/O capability at the language level.
+###Please Note:
+You can find an XCore to Adafruit NeoPixel strip driver that is designed to be familiar to users of the Adafruit Arduino library here:
+https://github.com/teachop/xcore_neopixel_buffered
+
+###Introduction
+This repo demonstrates rendering on-the-fly from XCore startKIT to the Adafruit NeoPixel strips.  No pre-loaded RAM frame buffer required!  It employs a two-task per strip approach to driving an Adafruit NeoPixel LED Strip, and is configured for 4 simultaneous independent strips.  The source is in XC, an extension of C with concurrency and support for high speed timing synchronized I/O capability at the language level.
 
 For a view of how XCore I/O works compare the driver code in neopixel_led_task() to some other NeoPixel waveform generator code.  An example would be the [Adafruit_NeoPixel::show() routine](https://github.com/adafruit/Adafruit_NeoPixel/blob/master/Adafruit_NeoPixel.cpp#L60-793).
 
@@ -15,7 +20,7 @@ Two tasks make up the application, a pattern generator task and a driver task.  
 
 The task communication uses "streaming channels" - their high performance is important in this application (see the wiki).
 
-In the example, 4 sets of paired tasks execute in parallel, each pair driving its own NeoPixel strip pattern.  While this is likely not the best approach (4 bit wide port?) it is easy and tests multi-tasking on the XCore chip.
+In the example, 4 sets of paired tasks execute in parallel, each pair driving its own NeoPixel strip pattern.  While this is likely not the only or best approach (4 bit wide port?) it is easy and tests multi-tasking on the XCore chip.
 
 Note that the driver tasks use extra test output pins for timing measurements.  These were used to evaluate channels vs. streaming channels vs. interfaces for performance.  The test outputs can be eliminated if desired.
 
